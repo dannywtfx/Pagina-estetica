@@ -5,6 +5,7 @@ const cors = require('cors');
 const app = express();
 app.use(cors());
 app.use(express.json());
+app.use(express.static(__dirname));
 
 // PIN para el dueño de la estética
 const ADMIN_PIN = 'amatista2026';
