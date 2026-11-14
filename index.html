@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Amatista | Beauty & Spa</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <header>
+        <div class="logo">AMATISTA</div>
+        <nav>
+            <a href="#inicio">Inicio</a>
+            <a href="#servicios">Servicios</a>
+            <a href="#membresias">Membresías</a>
+            <a href="#citas">Reservar Cita</a>
+            <a href="#" onclick="abrirPanelAdmin(event)" class="admin-link">Administrar</a>
+        </nav>
+    </header>
+
+    <section id="inicio" class="hero">
+        <div class="hero-overlay"></div>
+        <div class="hero-content">
+            <h1>AMATISTA</h1>
+            <p>BEAUTY & SPA STUDIO</p>
+            <a href="#citas" class="btn-primary">Agendar Cita en Línea</a>
+        </div>
+    </section>
+
+    <main class="container">
+
+        <!-- CATÁLOGO DINÁMICO DE SERVICIOS -->
+        <section id="servicios" class="section">
+            <h2 class="section-title">Nuestros Servicios</h2>
+            <div class="services-grid" id="servicesGrid">
+                <!-- Se llena automáticamente desde MySQL con precios -->
+            </div>
+        </section>
+
+        <!-- PROGRAMA DE MEMBRESÍAS -->
+        <section id="membresias" class="membership-section">
+            <h2 class="section-title">Programa de Clientes Frecuentes</h2>
+            <p class="subtitle">Tus visitas acumulan beneficios automáticos usando tu número de teléfono.</p>
+            <div class="membership-grid">
+                <div class="membership-card standard">
+                    <h3>Nivel Estándar</h3>
+                    <p class="req">0 a 2 visitas</p>
+                    <div class="discount">Precio Regular</div>
+                    <p>Acumula citas automáticamente al reservar en línea.</p>
+                </div>
+                <div class="membership-card silver">
+                    <h3>Membresía Plata</h3>
+                    <p class="req">3 a 5 visitas</p>
+                    <div class="discount">10% DE DESCUENTO</div>
+                    <p>Aplicable en todos nuestros servicios de estética y spa.</p>
+                </div>
+                <div class="membership-card gold">
+                    <h3>Membresía Oro</h3>
+                    <p class="req">6 o más visitas</p>
+                    <div class="discount">20% DE DESCUENTO</div>
+                    <p>Nuestro máximo beneficio VIP para clientas frecuentes.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- MÓDULO DE RESERVACIÓN DE CITAS -->
+        <section id="citas" class="booking-section">
+            <h2 class="section-title">Reserva Tu Cita en Tiempo Real</h2>
+            <p class="subtitle">Ingresa tu teléfono para verificar si cuentas con descuento de membresía.</p>
+
+            <!-- Banner dinámico de membresía -->
+            <div id="membershipBanner" class="membership-banner" style="display: none;"></div>
+
+            <form id="bookingForm" class="booking-form" onsubmit="confirmBooking(event)">
+                
+                <div class="form-group">
+                    <label for="clientPhone">Teléfono / WhatsApp (Identificador de Membresía)</label>
+                    <input type="tel" id="clientPhone" required placeholder="Ej. 5512345678" onblur="verificarMembresia()">
+                </div>
+
+                <div class="form-group">
+                    <label for="clientName">Nombre Completo</label>
+                    <input type="text" id="clientName" required placeholder="Ej. Ana García">
+                </div>
+
+                <div class="form-group">
+                    <label for="serviceSelect">Servicio Requerido</label>
+                    <select id="serviceSelect" required onchange="actualizarResumenPrecio()">
+                        <option value="">-- Elija un servicio --</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="appointmentDate">Fecha deseada</label>
+                    <input type="date" id="appointmentDate" required>
+                </div>
+
+                <div class="form-group full-width">
+                    <label>Horarios Disponibles</label>
+                    <div class="slots-container" id="timeSlots">
+                        <div class="time-slot" onclick="selectTime(this)">10:00 AM</div>
+                        <div class="time-slot" onclick="selectTime(this)">11:30 AM</div>
+                        <div class="time-slot" onclick="selectTime(this)">01:00 PM</div>
+                        <div class="time-slot" onclick="selectTime(this)">03:00 PM</div>
+                        <div class="time-slot" onclick="selectTime(this)">04:30 PM</div>
+                        <div class="time-slot" onclick="selectTime(this)">06:00 PM</div>
+                    </div>
+                </div>
+
+                <div id="priceSummary" class="price-summary full-width" style="display: none;"></div>
+
+                <div class="form-group full-width">
+                    <button type="submit" class="btn-primary full-btn">Confirmar Reservación</button>
+                </div>
+
+            </form>
+        </section>
+
+    </main>
+
+    <!-- MODAL PANEL DE ADMINISTRACIÓN PARA EL DUEÑO -->
+    <div id="adminModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <span class="close-btn" onclick="cerrarPanelAdmin()">&times;</span>
+            <h2>Panel del Dueño - Gestión de Servicios</h2>
+            
+            <form id="adminServiceForm" onsubmit="guardarServicio(event)" class="admin-form">
+                <input type="hidden" id="editServiceId">
+                <div class="form-group">
+                    <label>Nombre del Servicio</label>
+                    <input type="text" id="adminServiceName" required placeholder="Ej. Diseño de Cejas">
+                </div>
+                <div class="form-group">
+                    <label>Descripción</label>
+                    <input type="text" id="adminServiceDesc" required placeholder="Breve descripción del servicio">
+                </div>
+                <div class="admin-row">
+                    <div class="form-group">
+                        <label>Precio ($ MXN)</label>
+                        <input type="number" id="adminServicePrice" step="0.01" required placeholder="350">
+                    </div>
+                    <div class="form-group">
+                        <label>Duración (minutos)</label>
+                        <input type="number" id="adminServiceDuration" required placeholder="45">
+                    </div>
+                </div>
+                <div class="admin-actions">
+                    <button type="submit" class="btn-primary" id="btnSaveService">Agregar Servicio</button>
+                    <button type="button" class="btn-secondary" id="btnCancelEdit" onclick="resetAdminForm()" style="display: none;">Cancelar Edición</button>
+                </div>
+            </form>
+
+            <hr class="divider">
+            <h3>Servicios Actuales</h3>
+            <div id="adminServicesList" class="admin-list"></div>
+        </div>
+    </div>
+
+    <footer id="contacto">
+        <div class="footer-content">
+            <h3>AMATISTA BEAUTY & SPA</h3>
+            <p>📍 Plaza Comercial - Av. Principal #102, Local 4</p>
+            <p>📞 Teléfono: (555) 012-3456 | WhatsApp: (555) 987-6543</p>
+            <p class="copyright">&copy; 2026 Amatista Beauty Studio. Todos los derechos reservados.</p>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
